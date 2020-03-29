@@ -27,10 +27,10 @@ public class Result<T> {
     }
 
     public static <T> Result<T> success(T data){
-        return new Result<T>(data);
+        return new Result<>(data);
 
     }
     public static <T> Result<T> error(CodeMsg codeMsg){
-        return new Result<T>(CodeMsg.SERVER_ERROR);
+        return new Result<>(codeMsg);
     }
 }
