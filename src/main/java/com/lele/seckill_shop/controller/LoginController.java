@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.Valid;
+
 @Controller
 public class LoginController {
 
@@ -29,30 +31,8 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<CodeMsg> toLogin(@RequestBody LoginVo loginVo){
-        log.info(loginVo.toString());
-        /*
-         * 参数校验
-         */
-        String passInput = loginVo.getPassword();
-        String mobile = loginVo.getMobile();
-        if (StringUtils.isEmpty(passInput)) {
-            return Result.error(CodeMsg.PASSWORD_EMPTY);
-        }
-        if (StringUtils.isEmpty(mobile)) {
-            return Result.error(CodeMsg.MOBILE_EMPTY);
-        }
-        if (!ValidatorUtil.isMobile(mobile)) {
-            return Result.error(CodeMsg.MOBILE_ERROR);
-        }
-
-        CodeMsg codeMsg = userService.login(loginVo);
-        if (codeMsg.getCode() == 0) {
-            return Result.success(codeMsg);
-        } else {
-            return Result.error(codeMsg);
-        }
-
-
+    public Result<Boolean> doLogin(@RequestBody @Valid LoginVo loginVo){
+       userService.login(loginVo);
+       return Result.success(true);
     }
 }
