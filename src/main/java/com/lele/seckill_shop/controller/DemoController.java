@@ -2,6 +2,7 @@ package com.lele.seckill_shop.controller;
 
 import com.lele.seckill_shop.domain.User;
 import com.lele.seckill_shop.redis.RedisService;
+import com.lele.seckill_shop.redis.UserKey;
 import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,13 @@ public class DemoController {
 
     @RequestMapping("/redis/set")
     @ResponseBody
-    public Result<String> redisGet(){
-        redisService.set("key2","hello redis");
-        String str = redisService.get("key2",String.class);
-        return Result.success(str);
+    public Result<User> redisGet(){
+        User user = new User();
+        user.setId(2);
+        user.setName("lele");
+        System.out.println(redisService.set(UserKey.getById,"key2",user));
+        User res = redisService.get(UserKey.getById,"key2",User.class);
+        return Result.success(res);
     }
 
 }
