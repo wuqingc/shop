@@ -1,9 +1,16 @@
 package com.lele.seckill_shop.domain;
 
 import lombok.Data;
+import java.util.Date;
 
 @Data
 public class User {
-    private int id;
-    private String name;
+    private Long id;
+    private String nickname;
+    private String password;
+    private String salt;
+    private String head;
+    private Date registerDate;
+    private Date lastLoginDate;
+    private Integer loginCount;
 }

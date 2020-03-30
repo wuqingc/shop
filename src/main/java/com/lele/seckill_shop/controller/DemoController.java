@@ -31,8 +31,8 @@ public class DemoController {
     @ResponseBody
     public Result<User> redisGet(){
         User user = new User();
-        user.setId(2);
-        user.setName("lele");
+        user.setId(2L);
+        user.setNickname("lele");
         System.out.println(redisService.set(UserKey.getById,"key2",user));
         User res = redisService.get(UserKey.getById,"key2",User.class);
         return Result.success(res);
