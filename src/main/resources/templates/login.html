@@ -97,7 +97,8 @@ function doLogin() {
 		success : function (data) {
 			layer.closeAll();
 			if (data.code === 0) {
-				layer.msg("登录成功.")
+				layer.msg("登录成功.");
+				window.location.href = "http://localhost:8080/toList"
 			} else {
 				layer.msg(data.msg)
 			}

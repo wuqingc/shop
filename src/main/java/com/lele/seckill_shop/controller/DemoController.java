@@ -33,8 +33,7 @@ public class DemoController {
         User user = new User();
         user.setId(2L);
         user.setNickname("lele");
-        System.out.println(redisService.set(UserKey.getById,"key2",user));
-        User res = redisService.get(UserKey.getById,"key2",User.class);
+        User res = redisService.get(UserKey.token,"key2",User.class);
         return Result.success(res);
     }
 

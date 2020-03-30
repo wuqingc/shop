@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
@@ -31,8 +32,9 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<Boolean> doLogin(@RequestBody @Valid LoginVo loginVo){
-       userService.login(loginVo);
+    public Result<Boolean> doLogin(@RequestBody @Valid LoginVo loginVo,
+                                   HttpServletResponse response){
+       userService.login(loginVo,response);
        return Result.success(true);
     }
 }
