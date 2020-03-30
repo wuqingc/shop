@@ -1,6 +1,7 @@
 package com.lele.seckill_shop.controller;
 
 import com.lele.seckill_shop.domain.User;
+import com.lele.seckill_shop.redis.RedisService;
 import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +16,22 @@ public class DemoController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisService redisService;
+
+
     @RequestMapping(name = "/index")
     public String index(Model model){
         model.addAttribute("name","lele");
         return "index";
     }
 
-    @RequestMapping("/get")
+    @RequestMapping("/redis/set")
     @ResponseBody
-    public Result<User> index1(){
-        User user = userService.getById(1);
-        return Result.success(user);
+    public Result<String> redisGet(){
+        redisService.set("key2","hello redis");
+        String str = redisService.get("key2",String.class);
+        return Result.success(str);
     }
 
 }
