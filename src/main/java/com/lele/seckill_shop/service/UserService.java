@@ -48,7 +48,8 @@ public class UserService {
         if (!calcPass.equals(dbPass)) {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
         }
-        addCookie(user,response);
+        String token = UUIDUtil.uuid();
+        addCookie(user,response,token);
         return true;
     }
 
@@ -61,16 +62,15 @@ public class UserService {
          * 登录一次,就延长cookie的有效期
          */
         if (user != null) {
-            addCookie(user,response);
+            addCookie(user,response, token);
         }
         return user;
     }
 
-    private void addCookie(User user,HttpServletResponse response){
+    private void addCookie(User user, HttpServletResponse response, String token){
         /*
          * 生成Cookie
          */
-        String token = UUIDUtil.uuid();
         redisService.set(UserKey.token,token,user);
         Cookie cookie = new Cookie(COOKIE_NAME_TOKEN,token);
         cookie.setMaxAge(UserKey.token.expireSeconds());
