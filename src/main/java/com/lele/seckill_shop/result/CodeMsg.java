@@ -21,6 +21,8 @@ public class CodeMsg {
     public static CodeMsg MOBILE_ERROR = new CodeMsg(500,"手机号不符合规范");
     public static CodeMsg MOBILE_NOT_EXIST = new CodeMsg(500,"用户不存在");
     public static final CodeMsg PASSWORD_ERROR = new CodeMsg(500,"密码错误");
+    public static final CodeMsg SECKILL_OVER = new CodeMsg(500,"商品秒杀结束");
+    public static final CodeMsg REPEATE_SECKILL = new CodeMsg(500,"不能重复秒杀");
 
 
     public CodeMsg(int code, String msg) {

@@ -20,4 +20,8 @@ public class GoodsService {
     public GoodsVo getGoodsVoByGoodsId(String goodsId) {
         return goodsDao.getGood(goodsId);
     }
+
+    public void redeceStock(GoodsVo goodsVo) {
+        goodsDao.reduceStock(goodsVo.getId());
+    }
 }
