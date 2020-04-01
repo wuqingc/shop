@@ -4,7 +4,9 @@ import com.lele.seckill_shop.domain.User;
 
 import com.lele.seckill_shop.redis.GoodsKey;
 import com.lele.seckill_shop.redis.RedisService;
+import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.GoodsService;
+import com.lele.seckill_shop.vo.GoodsDetailVo;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +63,7 @@ public class GoodsController {
 
     @RequestMapping(value = "/goodsDetail/{goodsId}",produces = "text/html")
     @ResponseBody
-    public String toList(Model model, User user,
+    public String detail(Model model, User user,
                          @PathVariable(name = "goodsId") String goodsId,
                          HttpServletResponse response,
                          HttpServletRequest request){
@@ -105,5 +107,40 @@ public class GoodsController {
             redisService.set(GoodsKey.getGoodsList,""+goodsId,html);
         }
         return html;
+    }
+
+
+    /**
+     * 页面静态化方式.
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/goodsDetail1/{goodsId}")
+    @ResponseBody
+    public Result<GoodsDetailVo> detail2(Model model, User user,
+                                         @PathVariable(name = "goodsId") String goodsId){
+
+        GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodsId);
+        long startAt = goodsVo.getStartDate().getTime();
+        long endAt = goodsVo.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+        int seckillStatus = 1;
+        long remainSeconds = 0;
+        if (now < startAt) {
+            seckillStatus = 0;
+            remainSeconds = (startAt - now) / 1000;
+        } else if (now > endAt) {
+            seckillStatus = 2;
+            remainSeconds = -1;
+        }
+        GoodsDetailVo goodsDetailVo = new GoodsDetailVo();
+        goodsDetailVo.setGoods(goodsVo);
+        goodsDetailVo.setUser(user);
+        goodsDetailVo.setSeckillStatus(seckillStatus);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+
+        return Result.success(goodsDetailVo);
     }
 }

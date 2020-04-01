@@ -4,6 +4,7 @@ import com.lele.seckill_shop.domain.OrderInfo;
 import com.lele.seckill_shop.domain.SeckillOrder;
 import com.lele.seckill_shop.domain.User;
 import com.lele.seckill_shop.result.CodeMsg;
+import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.GoodsService;
 import com.lele.seckill_shop.service.OrderService;
 import com.lele.seckill_shop.service.SeckillService;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class SeckillController {
@@ -27,29 +30,26 @@ public class SeckillController {
     private SeckillService seckillService;
 
 
-    @RequestMapping("/doSeckill")
-    public String list(User user, Model model,
+    @RequestMapping(value = "/doSeckill",method = RequestMethod.POST)
+    @ResponseBody
+    public Result<OrderInfo> list(User user, Model model,
                        @RequestParam("goodsId") String goodsId){
 
         if (user == null) {
-            return "login";
+            return Result.error(CodeMsg.SERVER_ERROR);
         }
         GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodsId);
         if (goodsVo.getStockCount() <= 0) {
-            model.addAttribute("error", CodeMsg.SECKILL_OVER);
-            return "seckill_fail";
+            return Result.error(CodeMsg.SECKILL_OVER);
         }
 
         SeckillOrder order = orderService.getOrderId(user.getId(),goodsId);
         if (order != null) {
-            model.addAttribute("error", CodeMsg.REPEATE_SECKILL);
-            return "seckill_fail";
+            return Result.error(CodeMsg.REPEATE_SECKILL);
         }
 
 
         OrderInfo orderInfo = seckillService.seckill(user,goodsVo);
-        model.addAttribute("orderInfo",orderInfo);
-        model.addAttribute("goods",goodsVo);
-        return "order_detail";
+        return Result.success(orderInfo);
     }
 }

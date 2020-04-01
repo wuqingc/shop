@@ -6,6 +6,7 @@ import lombok.Data;
 public class CodeMsg {
 
 
+    public static final CodeMsg ORDER_NOT_EXIST = new CodeMsg(500,"订单不存在");
     private int code;
     private String msg;
     /*
