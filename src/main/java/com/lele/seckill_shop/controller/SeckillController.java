@@ -38,6 +38,11 @@ public class SeckillController {
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
+        /*
+         * 1.判断库存
+         * 2.查看是否重复秒杀
+         * 3.下订单,写入秒杀订单
+         */
         GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodsId);
         if (goodsVo.getStockCount() <= 0) {
             return Result.error(CodeMsg.SECKILL_OVER);
@@ -47,7 +52,6 @@ public class SeckillController {
         if (order != null) {
             return Result.error(CodeMsg.REPEATE_SECKILL);
         }
-
 
         OrderInfo orderInfo = seckillService.seckill(user,goodsVo);
         return Result.success(orderInfo);

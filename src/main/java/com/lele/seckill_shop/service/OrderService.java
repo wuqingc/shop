@@ -5,6 +5,8 @@ import com.lele.seckill_shop.dao.OrderDao;
 import com.lele.seckill_shop.domain.OrderInfo;
 import com.lele.seckill_shop.domain.SeckillOrder;
 import com.lele.seckill_shop.domain.User;
+import com.lele.seckill_shop.redis.OrderKey;
+import com.lele.seckill_shop.redis.RedisService;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,13 @@ public class OrderService {
     @Autowired
     private OrderDao orderDao;
 
+    @Autowired
+    private RedisService redisService;
+
     public SeckillOrder getOrderId(Long id, String goodsId) {
-        return orderDao.getOrderId(id,goodsId);
+        return redisService.get(OrderKey.getSeckillOrder,""+id+"_"+goodsId,SeckillOrder.class);
     }
+
 
     public OrderInfo createOrder(User user, GoodsVo goodsVo) {
         OrderInfo orderInfo = new OrderInfo();
@@ -40,6 +46,8 @@ public class OrderService {
         seckillOrder.setOrderId(orderId);
         seckillOrder.setUserId(user.getId());
         orderDao.insertSeckillOrder(seckillOrder);
+
+        redisService.set(OrderKey.getSeckillOrder,""+user.getId()+"_"+goodsVo.getId(),seckillOrder);
 
         return orderInfo;
     }

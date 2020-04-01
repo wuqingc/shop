@@ -1,6 +1,8 @@
 package com.lele.seckill_shop.service;
 
 import com.lele.seckill_shop.dao.GoodsDao;
+import com.lele.seckill_shop.exception.GlobalException;
+import com.lele.seckill_shop.result.CodeMsg;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class GoodsService {
     }
 
     public void redeceStock(GoodsVo goodsVo) {
-        goodsDao.reduceStock(goodsVo.getId());
+        int res = goodsDao.reduceStock(goodsVo.getId());
+        if (res == 0) {
+            throw new GlobalException(CodeMsg.SECKILL_OVER);
+        }
     }
 }
