@@ -38,10 +38,6 @@ public class GoodsController {
                          HttpServletResponse response,
                          HttpServletRequest request){
         model.addAttribute("user",user);
-
-        List<GoodsVo> list = goodsService.listGoods();
-        model.addAttribute("goodsList",list);
-
         /*
          * 取缓存
          */
@@ -49,9 +45,12 @@ public class GoodsController {
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
+
         /*
          * 手动渲染模板.
          */
+        List<GoodsVo> list = goodsService.listGoods();
+        model.addAttribute("goodsList",list);
         WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());
         html = thymeleafViewResolver.getTemplateEngine().process("goods_list", ctx);
         if (!StringUtils.isEmpty(html)) {
