@@ -32,9 +32,15 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<Boolean> doLogin(@RequestBody @Valid LoginVo loginVo,
+    public Result<String> doLogin(@RequestBody @Valid LoginVo loginVo,
                                    HttpServletResponse response){
-       userService.login(loginVo,response);
-       return Result.success(true);
+        String token = userService.login(loginVo,response);
+        return Result.success(token);
+    }
+
+    @RequestMapping("/insert")
+    @ResponseBody
+    public Result<Boolean> insert(@RequestBody @Valid LoginVo loginVo){
+        return Result.success(userService.insert(loginVo));
     }
 }

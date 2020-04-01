@@ -14,6 +14,8 @@ public class Result<T> {
         this.data = data;
     }
 
+    private Result(){}
+
     /**
      * 正确的状态只有一种,错误有多种.
      * @param codeMsg

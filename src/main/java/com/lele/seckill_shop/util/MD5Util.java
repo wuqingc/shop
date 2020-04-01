@@ -10,7 +10,7 @@ public class MD5Util {
         return DigestUtils.md5Hex(src);
     }
 
-    private static String inputPassToFormPass(String formPass) {
+    static String inputPassToFormPass(String formPass) {
         String str = "" + salt.charAt(0) + salt.charAt(2) + formPass +
                 salt.charAt(5) + salt.charAt(4);
         return md5(str);

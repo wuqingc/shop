@@ -33,7 +33,7 @@ public class UserService {
         return userDao.getById(id);
     }
 
-    public boolean login(LoginVo loginVo, HttpServletResponse response) {
+    public String login(LoginVo loginVo, HttpServletResponse response) {
         String mobile = loginVo.getMobile();
         String password = loginVo.getPassword();
 
@@ -50,7 +50,7 @@ public class UserService {
         }
         String token = UUIDUtil.uuid();
         addCookie(user,response,token);
-        return true;
+        return token;
     }
 
     public User getByToken(String token, HttpServletResponse response) {
@@ -76,5 +76,14 @@ public class UserService {
         cookie.setMaxAge(UserKey.token.expireSeconds());
         cookie.setPath("/");
         response.addCookie(cookie);
+    }
+
+    public Boolean insert(LoginVo loginVo) {
+        User user = new User();
+        user.setId(Long.valueOf(loginVo.getMobile()));
+        String pwd = MD5Util.formPassToDBPass(loginVo.getPassword(),"1a2b3c");
+        user.setPassword(pwd);
+        user.setSalt("1a2b3c");
+        return userDao.insert(user);
     }
 }
