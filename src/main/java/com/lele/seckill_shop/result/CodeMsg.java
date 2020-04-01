@@ -24,6 +24,8 @@ public class CodeMsg {
     public static final CodeMsg SECKILL_OVER = new CodeMsg(500,"商品秒杀结束");
     public static final CodeMsg REPEATE_SECKILL = new CodeMsg(500,"不能重复秒杀");
 
+    public static final CodeMsg MOBILE_EXIST = new CodeMsg(500,"手机号码不存在");
+
 
     public CodeMsg(int code, String msg) {
         this.code = code;

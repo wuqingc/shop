@@ -28,9 +28,44 @@ public class UserService {
     @Autowired
     private RedisService redisService;
 
+    /**
+     * 不要调用别人的Dao,因为Service中可能有缓存.
+     * 尽量做到Service调用.
+     */
     @Transactional
     public User getById(Long id){
-        return userDao.getById(id);
+        User user = redisService.get(UserKey.getById,""+id,User.class);
+        if (user != null) {
+            return user;
+        }
+        user = userDao.getById(id);
+        if (user != null) {
+            redisService.set(UserKey.getById,""+id,user);
+        }
+        return user;
+    }
+
+    @Transactional
+    public boolean updatePassword(String token,Long id,String formPass){
+        User user = getById(id);
+        if (user != null) {
+           throw new GlobalException(CodeMsg.MOBILE_EXIST);
+        }
+        /*
+         * 需要修改的字段才设置.
+         */
+        User updateUser = new User();
+        updateUser.setId(id);
+        updateUser.setPassword(MD5Util.formPassToDBPass(formPass,user.getSalt()));
+        userDao.update(updateUser);
+
+        /*
+         * 先更新数据库后,更新缓存.
+         */
+        redisService.delete(UserKey.getById,""+id);
+        user.setPassword(updateUser.getPassword());
+        redisService.set(UserKey.token,token,user);
+        return true;
     }
 
     public String login(LoginVo loginVo, HttpServletResponse response) {

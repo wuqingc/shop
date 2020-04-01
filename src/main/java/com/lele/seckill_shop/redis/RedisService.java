@@ -80,6 +80,18 @@ public class RedisService {
         }
     }
 
+    public Long delete(KeyPrefix prefix,String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            key = prefix.getPrefix() + key;
+            return jedis.del(key);
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+
     /**
      * 增加值
      * @param prefix
@@ -151,4 +163,5 @@ public class RedisService {
             jedis.close();
         }
     }
+
 }
