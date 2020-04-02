@@ -39,11 +39,14 @@ public class OrderService {
         orderInfo.setStatus(0);
         orderInfo.setUserId(user.getId());
         orderInfo.setPayDate(new Date());
-        long orderId = orderDao.insert(orderInfo);
+        orderDao.insert(orderInfo);
 
+        /*
+         * 插入成功后,会将orderInfo数据更新
+         */
         SeckillOrder seckillOrder = new SeckillOrder();
         seckillOrder.setGoodsId(goodsVo.getId());
-        seckillOrder.setOrderId(orderId);
+        seckillOrder.setOrderId(orderInfo.getId());
         seckillOrder.setUserId(user.getId());
         orderDao.insertSeckillOrder(seckillOrder);
 

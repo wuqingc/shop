@@ -1,12 +1,32 @@
 package com.lele.seckill_shop.rabbitmq;
 
+import com.lele.seckill_shop.domain.OrderInfo;
+import com.lele.seckill_shop.domain.SeckillOrder;
+import com.lele.seckill_shop.domain.User;
+import com.lele.seckill_shop.redis.RedisService;
+import com.lele.seckill_shop.result.CodeMsg;
+import com.lele.seckill_shop.result.Result;
+import com.lele.seckill_shop.service.GoodsService;
+import com.lele.seckill_shop.service.OrderService;
+import com.lele.seckill_shop.service.SeckillService;
+import com.lele.seckill_shop.vo.GoodsVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MQReceiver {
+
+    @Autowired
+    private GoodsService goodsService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private SeckillService seckillService;
 
     public static Logger logger = LoggerFactory.getLogger(MQReceiver.class);
 
@@ -37,5 +57,23 @@ public class MQReceiver {
     @RabbitListener(queues = MQConfig.HEADERS_QUEUE)
     public void headers(byte[] message) {
         logger.info("receive headers queue2 message:" + new String(message));
+    }
+
+
+    @RabbitListener(queues = MQConfig.SECKILL_QUEUE)
+    public void seckill(String message) {
+        SeckillMessage seckillMessage = RedisService.StringToBean(message,SeckillMessage.class);
+        User user = seckillMessage.getUser();
+        String goodId = seckillMessage.getGoodsId();
+
+        GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodId);
+        if (goodsVo.getStockCount() <= 0) {
+            return;
+        }
+        SeckillOrder order = orderService.getOrderId(user.getId(),goodId);
+        if (order != null) {
+            return;
+        }
+        seckillService.seckill(user,goodsVo);
     }
 }

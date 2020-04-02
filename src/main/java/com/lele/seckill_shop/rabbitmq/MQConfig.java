@@ -22,13 +22,15 @@ public class MQConfig {
     public static final String HEADERS_EXCHANGE = "headersExchange";
     public static final String HEADERS_QUEUE = "headers.queue1";
 
+    public static final String SECKILL_QUEUE = "seckill.queue1";
+
     /**
      * 交换机Exchange的四种模式:
      * 1.Direct模式:直接传递
      */
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE);
+        return new Queue(SECKILL_QUEUE);
     }
 
     /**

@@ -23,10 +23,7 @@ public class GoodsService {
         return goodsDao.getGood(goodsId);
     }
 
-    public void redeceStock(GoodsVo goodsVo) {
-        int res = goodsDao.reduceStock(goodsVo.getId());
-        if (res == 0) {
-            throw new GlobalException(CodeMsg.SECKILL_OVER);
-        }
+    public int redeceStock(GoodsVo goodsVo) {
+        return goodsDao.reduceStock(goodsVo.getId());
     }
 }

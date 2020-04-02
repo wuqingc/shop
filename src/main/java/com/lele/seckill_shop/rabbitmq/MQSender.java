@@ -45,4 +45,12 @@ public class MQSender {
         Message obj = new Message(msg.getBytes(),properties);
         amqpTemplate.convertAndSend(MQConfig.HEADERS_EXCHANGE,"",obj);
     }
+
+    /**
+     * 秒杀订单.
+     */
+    public void seckillMessage(SeckillMessage seckillMessage) {
+        String msg = RedisService.beanToString(seckillMessage);
+        amqpTemplate.convertAndSend(MQConfig.SECKILL_QUEUE,msg);
+    }
 }
