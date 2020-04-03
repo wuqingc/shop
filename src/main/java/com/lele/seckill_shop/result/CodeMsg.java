@@ -27,6 +27,7 @@ public class CodeMsg {
 
     public static final CodeMsg MOBILE_EXIST = new CodeMsg(500,"手机号码不存在");
     public static final CodeMsg REQUEST_ILLEGAL = new CodeMsg(500,"请求非法.");
+    public static final CodeMsg ACCESS_LIMIT = new CodeMsg(500,"访问频繁.");
 
 
     public CodeMsg(int code, String msg) {

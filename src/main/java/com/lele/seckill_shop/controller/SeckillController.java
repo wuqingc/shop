@@ -5,6 +5,7 @@ import com.lele.seckill_shop.domain.SeckillOrder;
 import com.lele.seckill_shop.domain.User;
 import com.lele.seckill_shop.rabbitmq.MQSender;
 import com.lele.seckill_shop.rabbitmq.SeckillMessage;
+import com.lele.seckill_shop.redis.AcessKey;
 import com.lele.seckill_shop.redis.GoodsKey;
 import com.lele.seckill_shop.redis.RedisService;
 import com.lele.seckill_shop.redis.SeckillKey;
@@ -23,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
@@ -152,13 +154,27 @@ public class SeckillController implements InitializingBean {
 
     @RequestMapping(value = "/getSeckill",method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getPath(User user, Model model,
+    public Result<String> getPath(User user,
+                               HttpServletRequest request,
                                @RequestParam("goodsId") String goodsId,
                                   @RequestParam("verifyCode") int verifyCode){
-        model.addAttribute("user",user);
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
+        /*
+         * 限流防刷
+         */
+        String uri = request.getRequestURI();
+        String key = uri + "_" + user.getId();
+        Integer count = redisService.get(AcessKey.acessKey,key,Integer.class);
+        if (count == null) {
+            redisService.set(AcessKey.acessKey,key,1);
+        } else if (count < 5) {
+            redisService.incr(AcessKey.acessKey,key);
+        } else {
+            return Result.error(CodeMsg.ACCESS_LIMIT);
+        }
+
         boolean check = seckillService.checkVerifyCode(user,goodsId,verifyCode);
         if (!check) {
             return Result.error(CodeMsg.REQUEST_ILLEGAL);
