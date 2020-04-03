@@ -8,6 +8,7 @@ import com.lele.seckill_shop.exception.GlobalException;
 import com.lele.seckill_shop.redis.RedisService;
 import com.lele.seckill_shop.redis.SeckillKey;
 import com.lele.seckill_shop.result.CodeMsg;
+import com.lele.seckill_shop.util.UUIDUtil;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,5 +60,19 @@ public class SeckillService {
     }
     private boolean getGoodsOver(String goodsId) {
         return redisService.exist(SeckillKey.isGoodsOver,""+goodsId);
+    }
+
+    public boolean checkPath(Long id, String goodsId, String path) {
+        if (path == null) {
+            return false;
+        }
+        String pathOld = redisService.get(SeckillKey.getSeckill,""+id+"_"+goodsId,String.class);
+        return path.equals(pathOld);
+    }
+
+    public String createSeckillPath(Long id, String goodsId) {
+        String str = UUIDUtil.uuid() + "123456";
+        redisService.set(SeckillKey.getSeckill,""+id+"_"+goodsId,str);
+        return str;
     }
 }

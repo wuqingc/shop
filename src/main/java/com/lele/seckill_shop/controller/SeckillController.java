@@ -7,20 +7,20 @@ import com.lele.seckill_shop.rabbitmq.MQSender;
 import com.lele.seckill_shop.rabbitmq.SeckillMessage;
 import com.lele.seckill_shop.redis.GoodsKey;
 import com.lele.seckill_shop.redis.RedisService;
+import com.lele.seckill_shop.redis.SeckillKey;
 import com.lele.seckill_shop.result.CodeMsg;
 import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.GoodsService;
 import com.lele.seckill_shop.service.OrderService;
 import com.lele.seckill_shop.service.SeckillService;
+import com.lele.seckill_shop.util.MD5Util;
+import com.lele.seckill_shop.util.UUIDUtil;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,14 +46,21 @@ public class SeckillController implements InitializingBean {
     private Map<Long,Boolean> localOver = new HashMap<>();
 
 
-    @RequestMapping(value = "/doSeckill",method = RequestMethod.POST)
+    @RequestMapping(value = "/doSeckill/{path}",method = RequestMethod.POST)
     @ResponseBody
     public Result<Integer> list(User user, Model model,
-                       @RequestParam("goodsId") String goodsId){
+                                @RequestParam("goodsId") String goodsId,
+                                @PathVariable("path") String path){
 
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
+
+        boolean flag = seckillService.checkPath(user.getId(),goodsId,path);
+        if (!flag) {
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+
         /*
          * 1.判断库存
          * 2.查看是否重复秒杀
@@ -128,12 +135,25 @@ public class SeckillController implements InitializingBean {
     @RequestMapping(value = "/seckillResult",method = RequestMethod.GET)
     @ResponseBody
     public Result<Long> result(User user, Model model,
-                                @RequestParam("goodsId") String goodsId){
+                               @RequestParam("goodsId") String goodsId){
         model.addAttribute("user",user);
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
         long result = seckillService.getSeckillResult(user.getId(),goodsId);
         return Result.success(result);
+    }
+
+
+    @RequestMapping(value = "/getSeckill",method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getPath(User user, Model model,
+                               @RequestParam("goodsId") String goodsId){
+        model.addAttribute("user",user);
+        if (user == null) {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+        String path = seckillService.createSeckillPath(user.getId(),goodsId);
+        return Result.success(path);
     }
 }

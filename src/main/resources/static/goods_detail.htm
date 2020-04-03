@@ -43,7 +43,7 @@
         	<span id="secKillTip"></span>
         </td>
         <td>
-            <button class="btn btn-primary btn-block" type="submit" id="buyButton" onclick="dosecKill()">立即秒杀</button>
+            <button class="btn btn-primary btn-block" type="submit" id="buyButton" onclick="getSeckillPath()">立即秒杀</button>
             <input type="hidden" name="goodsId" id="goodsId" />
         </td>
      </tr>
@@ -70,9 +70,32 @@ $(function(){
 });
 
 
-function dosecKill() {
+function getSeckillPath() {
+    g_showLoading();
     $.ajax({
-        url:"/doSeckill",
+        url:"/getSeckill",
+        type:"get",
+        data:{
+            goodsId : $('#goodsId').val()
+        },
+        success:function (data) {
+            if (data.code === 0) {
+                var path = data.data;
+                dosecKill(path);
+            } else {
+                layer.msg(data.msg);
+            }
+        },
+        error:function () {
+            layer.msg("请求错误");
+        }
+    })
+}
+
+function dosecKill(path) {
+    alert(path)
+    $.ajax({
+        url:"/doSeckill/"+path,
         type:"post",
         data:{
             goodsId : $('#goodsId').val()
@@ -80,7 +103,6 @@ function dosecKill() {
         success:function (data) {
             console.log(data);
             if (data.code === 0) {
-                // window.location.href="http://localhost:8080/order_detail.htm?orderId=" + data.data.id;
                 getSeckillResult($('#goodsId').val());
 
             } else {

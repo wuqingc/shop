@@ -1,8 +1,12 @@
 package com.lele.seckill_shop.redis;
 
 public class SeckillKey extends BasePrefix {
-    public SeckillKey(String prefix) {
-        super(prefix);
+
+
+    public static SeckillKey isGoodsOver = new SeckillKey(0,"go");
+    public static SeckillKey getSeckill = new SeckillKey(60,"gs");
+
+    public SeckillKey(int expireSeconds, String prefix) {
+        super(expireSeconds, prefix);
     }
-    public static SeckillKey isGoodsOver = new SeckillKey("go");
 }
