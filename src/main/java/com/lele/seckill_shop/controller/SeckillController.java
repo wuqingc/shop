@@ -22,6 +22,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,12 +153,39 @@ public class SeckillController implements InitializingBean {
     @RequestMapping(value = "/getSeckill",method = RequestMethod.GET)
     @ResponseBody
     public Result<String> getPath(User user, Model model,
-                               @RequestParam("goodsId") String goodsId){
+                               @RequestParam("goodsId") String goodsId,
+                                  @RequestParam("verifyCode") int verifyCode){
         model.addAttribute("user",user);
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
+        boolean check = seckillService.checkVerifyCode(user,goodsId,verifyCode);
+        if (!check) {
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+
         String path = seckillService.createSeckillPath(user.getId(),goodsId);
         return Result.success(path);
+    }
+
+
+    @RequestMapping(value = "/verifyCode",method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> verifyCode(User user, HttpServletResponse response,
+                                  @RequestParam("goodsId") String goodsId){
+        if (user == null) {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+        BufferedImage image = seckillService.createVerifyCode(user,goodsId);
+        try {
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return Result.error(CodeMsg.SECKILL_OVER);
+        }
     }
 }

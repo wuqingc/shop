@@ -43,8 +43,14 @@
         	<span id="secKillTip"></span>
         </td>
         <td>
-            <button class="btn btn-primary btn-block" type="submit" id="buyButton" onclick="getSeckillPath()">立即秒杀</button>
-            <input type="hidden" name="goodsId" id="goodsId" />
+            <div class="row">
+                <div class="form-inline">
+                    <img id="verifyCodeImg" width="80" height="32" style="display: none" onclick="refreshVerify()">
+                    <input id="verifyCode" class="form-control" style="display: none">
+                    <button class="btn btn-primary" type="submit" id="buyButton" onclick="getSeckillPath()">立即秒杀</button>
+                    <input type="hidden" name="goodsId" id="goodsId" />
+                </div>
+            </div>
         </td>
      </tr>
      <tr>  
@@ -66,7 +72,6 @@
 $(function(){
 	//countDown();
     getDetail();
-    countDown();
 });
 
 
@@ -76,7 +81,8 @@ function getSeckillPath() {
         url:"/getSeckill",
         type:"get",
         data:{
-            goodsId : $('#goodsId').val()
+            goodsId : $('#goodsId').val(),
+            verifyCode : $('#verifyCode').val()
         },
         success:function (data) {
             if (data.code === 0) {
@@ -93,7 +99,6 @@ function getSeckillPath() {
 }
 
 function dosecKill(path) {
-    alert(path)
     $.ajax({
         url:"/doSeckill/"+path,
         type:"post",
@@ -190,10 +195,12 @@ function render(detail) {
     $('#goodsPrice').text(goods.goodsPrice);
     $('#seckillPrice').text(goods.seckillPrice);
     $('#stockCount').text(goods.stockCount);
+
+    countDown();
 }
 
 function countDown(){
-	var remainSeconds = $("#remainSeconds").val();
+	var remainSeconds = parseInt($("#remainSeconds").val());
 	var timeout;
 	if(remainSeconds > 0){
 	    //秒杀还没开始，倒计时处理(每一秒回调一次函数)
@@ -209,14 +216,24 @@ function countDown(){
 		if(timeout){
 			clearTimeout(timeout);
 		}
+
+        $('#verifyCodeImg').attr("src","/verifyCode?goodsId="+$('#goodsId').val());
+        $('#verifyCodeImg').show();
+        $('#verifyCode').show();
 	}else{
 	    //秒杀已经结束
 		// $("#buyButton").attr("disabled", true);
         if(timeout){
             clearTimeout(timeout);
         }
-
+        $('#verifyCodeImg').hide();
+        $('#verifyCode').hide();
 	}
+}
+
+function refreshVerify() {
+    $('#verifyCodeImg').attr("src","/verifyCode?goodsId="+$('#goodsId').val()+ "&timestap="+new Date().getTime());
+    $('#verifyCodeImg').show();
 }
 
 </script>
