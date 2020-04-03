@@ -7,6 +7,7 @@ public class CodeMsg {
 
 
     public static final CodeMsg ORDER_NOT_EXIST = new CodeMsg(500,"订单不存在");
+    public static final CodeMsg SESSION_ERROR = new CodeMsg(500,"用户未登录");
     private int code;
     private String msg;
     /*

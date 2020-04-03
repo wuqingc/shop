@@ -1,21 +1,18 @@
 package com.lele.seckill_shop.controller;
 
-import com.lele.seckill_shop.domain.OrderInfo;
+import com.lele.seckill_shop.access.AccessLimit;
+
 import com.lele.seckill_shop.domain.SeckillOrder;
 import com.lele.seckill_shop.domain.User;
 import com.lele.seckill_shop.rabbitmq.MQSender;
 import com.lele.seckill_shop.rabbitmq.SeckillMessage;
-import com.lele.seckill_shop.redis.AcessKey;
 import com.lele.seckill_shop.redis.GoodsKey;
 import com.lele.seckill_shop.redis.RedisService;
-import com.lele.seckill_shop.redis.SeckillKey;
 import com.lele.seckill_shop.result.CodeMsg;
 import com.lele.seckill_shop.result.Result;
 import com.lele.seckill_shop.service.GoodsService;
 import com.lele.seckill_shop.service.OrderService;
 import com.lele.seckill_shop.service.SeckillService;
-import com.lele.seckill_shop.util.MD5Util;
-import com.lele.seckill_shop.util.UUIDUtil;
 import com.lele.seckill_shop.vo.GoodsVo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,28 +147,15 @@ public class SeckillController implements InitializingBean {
         return Result.success(result);
     }
 
-
+    @AccessLimit(seconds = 5,maxCount = 10)
     @RequestMapping(value = "/getSeckill",method = RequestMethod.GET)
     @ResponseBody
     public Result<String> getPath(User user,
                                HttpServletRequest request,
                                @RequestParam("goodsId") String goodsId,
-                                  @RequestParam("verifyCode") int verifyCode){
+                               @RequestParam(value = "verifyCode") int verifyCode){
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
-        }
-        /*
-         * 限流防刷
-         */
-        String uri = request.getRequestURI();
-        String key = uri + "_" + user.getId();
-        Integer count = redisService.get(AcessKey.acessKey,key,Integer.class);
-        if (count == null) {
-            redisService.set(AcessKey.acessKey,key,1);
-        } else if (count < 5) {
-            redisService.incr(AcessKey.acessKey,key);
-        } else {
-            return Result.error(CodeMsg.ACCESS_LIMIT);
         }
 
         boolean check = seckillService.checkVerifyCode(user,goodsId,verifyCode);
@@ -183,6 +166,7 @@ public class SeckillController implements InitializingBean {
         String path = seckillService.createSeckillPath(user.getId(),goodsId);
         return Result.success(path);
     }
+
 
 
     @RequestMapping(value = "/verifyCode",method = RequestMethod.GET)

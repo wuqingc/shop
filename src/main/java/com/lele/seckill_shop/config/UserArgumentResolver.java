@@ -1,5 +1,6 @@
 package com.lele.seckill_shop.config;
 
+import com.lele.seckill_shop.access.UserContext;
 import com.lele.seckill_shop.domain.User;
 import com.lele.seckill_shop.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -18,11 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @Service
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
-
-    @Autowired
-    private UserService userService;
-
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         Class<?> clazz = parameter.getParameterType();
@@ -31,30 +27,9 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-
-        String paramToken = request.getParameter(UserService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request,UserService.COOKIE_NAME_TOKEN);
-        if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
-            return null;
-        }
-        String token = StringUtils.isEmpty(cookieToken) ? paramToken : cookieToken;
-
-        return userService.getByToken(token,response);
-    }
-
-    private String getCookieValue(HttpServletRequest request, String cookieNameToken) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length <= 0) {
-            return null;
-        }
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(cookieNameToken)) {
-                return cookie.getValue();
-            }
-        }
-        return null;
+        /*
+         * 拦截器先执行,所以直接取就可以.
+         */
+       return UserContext.getUser();
     }
 }
